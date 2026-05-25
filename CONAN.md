@@ -10,6 +10,28 @@ Use this when those hosts are blocked (corporate / air-gapped networks) but a
 Conan remote — Conan Center, or an internal Artifactory/Nexus mirror — is
 reachable. The Conan integration is ported from the `VortexServerRust` project.
 
+## Getting the source (private repo)
+
+This is a **private** repository under the `CapitalMarketsMacro` org, so you need
+collaborator/org access and an authenticated GitHub client:
+
+```bash
+# GitHub CLI (uses your `gh auth login` credentials) — simplest:
+gh repo clone CapitalMarketsMacro/perspective-conan
+
+# or HTTPS (use a Personal Access Token with `repo` scope as the password):
+git clone https://github.com/CapitalMarketsMacro/perspective-conan.git
+
+# or SSH (needs your SSH key registered on GitHub):
+git clone git@github.com:CapitalMarketsMacro/perspective-conan.git
+```
+
+Use a **full clone, not `--depth 1`** — a shallow clone cannot be re-pushed to a
+different remote (`git` fails with `did not receive expected object … /
+index-pack failed`). On a TLS-intercepting corporate network you may also need
+`git -c http.schannelCheckRevoke=false clone …` (Windows/schannel) so the clone
+isn't blocked by CRL/OCSP checks.
+
 ## Prerequisites
 
 | Tool | Version | Notes |
