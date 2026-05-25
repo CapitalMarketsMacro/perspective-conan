@@ -1,0 +1,48 @@
+{
+    "name": "@perspective-dev/viewer-datagrid",
+    "version": "4.5.0",
+    "description": "Perspective datagrid plugin based on `regular-table`",
+    "unpkg": "dist/cdn/perspective-viewer-datagrid.js",
+    "jsdelivr": "dist/cdn/perspective-viewer-datagrid.js",
+    "exports": {
+        ".": {
+            "types": "./dist/esm/index.d.ts",
+            "default": "./dist/esm/perspective-viewer-datagrid.js"
+        },
+        "./dist/*": "./dist/*",
+        "./src/*": "./src/*",
+        "./package.json": "./package.json"
+    },
+    "type": "module",
+    "types": "dist/esm/index.d.ts",
+    "files": [
+        "dist/**/*",
+        "src/**/*"
+    ],
+    "scripts": {
+        "build": "node ./build.mjs",
+        "clean": "node ./clean.mjs"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/perspective-dev/perspective"
+    },
+    "author": "",
+    "license": "Apache-2.0",
+    "dependencies": {
+        "@perspective-dev/client": "workspace:",
+        "@perspective-dev/viewer": "workspace:",
+        "regular-table": "catalog:"
+    },
+    "devDependencies": {
+        "lightningcss": "catalog:",
+        "@perspective-dev/esbuild-plugin": "workspace:",
+        "@perspective-dev/test": "workspace:",
+        "prettier": "catalog:",
+        "typescript": "catalog:",
+        "zx": "catalog:"
+    }
+}

@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+    <head>
+        <script type="module" src="/node_modules/@perspective-dev/viewer/dist/cdn/perspective-viewer.js"></script>
+        <script type="module">
+            await customElements.whenDefined("perspective-viewer-plugin");
+            const BASE = customElements.get("perspective-viewer-plugin");
+            class TestChartPluginHighPriority extends BASE {
+                get_static_config() {
+                    return {
+                        name: "HighPriority",
+                        config_column_names: [],
+                        priority: 10,
+                    };
+                }
+            }
+
+            class TestChartPluginLowPriority extends BASE {
+                get_static_config() {
+                    return {
+                        name: "LowPriority",
+                        config_column_names: [],
+                        priority: -10,
+                    };
+                }
+            }
+
+            customElements.define("low-priority", TestChartPluginLowPriority);
+            customElements.define("high-priority", TestChartPluginHighPriority);
+            await customElements.whenDefined("perspective-viewer").then((viewer) => {
+                viewer.registerPlugin("low-priority");
+                viewer.registerPlugin("high-priority");
+            });
+        </script>
+
+        <script type="module" src="/node_modules/@perspective-dev/test/load-viewer-csv.js"></script>
+        <link rel="stylesheet" href="../css/demo.css" />
+        <link rel="stylesheet" href="/node_modules/@perspective-dev/viewer/dist/css/pro.css" />
+    </head>
+    <body>
+        <perspective-viewer></perspective-viewer>
+    </body>
+</html>

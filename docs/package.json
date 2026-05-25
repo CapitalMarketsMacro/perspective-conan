@@ -1,0 +1,31 @@
+{
+    "name": "@perspective-dev/docs",
+    "version": "4.5.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "npm run mdbook && node build.mjs && node build.config.mjs",
+        "start": "node server.mjs",
+        "serve": "node server.mjs",
+        "clean": "rm -rf dist",
+        "mdbook": "docker compose run --rm mdbook build"
+    },
+    "dependencies": {
+        "@perspective-dev/viewer-charts": "workspace:",
+        "@perspective-dev/viewer-datagrid": "workspace:",
+        "@perspective-dev/viewer": "workspace:",
+        "@perspective-dev/client": "workspace:",
+        "@perspective-dev/server": "workspace:",
+        "blocks": "workspace:",
+        "puppeteer": "catalog:",
+        "prismjs": "^1.29.0",
+        "superstore-arrow": "catalog:"
+    },
+    "devDependencies": {
+        "@types/prismjs": "^1.26.0",
+        "@zip.js/zip.js": "catalog:",
+        "esbuild": "catalog:",
+        "lightningcss": "catalog:",
+        "typescript": "catalog:"
+    }
+}

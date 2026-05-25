@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+    <head>
+        <script type="module">
+            import "/node_modules/@perspective-dev/viewer/dist/cdn/perspective-viewer.js";
+            import perspective from "/node_modules/@perspective-dev/client/dist/cdn/perspective.js";
+            window.WORKER = perspective.worker();
+        </script>
+        <link rel="stylesheet" href="../css/demo.css" />
+        <link rel="stylesheet" href="/node_modules/@perspective-dev/viewer/dist/css/pro.css" />
+        <link rel="stylesheet" href="/node_modules/@fontsource/roboto-mono/400.css" />
+    </head>
+    <body>
+        <perspective-viewer></perspective-viewer>
+    </body>
+</html>

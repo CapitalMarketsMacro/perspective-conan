@@ -1,0 +1,14 @@
+include(default)
+
+[settings]
+# Pin to MSVC 194 (VS 2022) rather than the auto-detected VS 18/2026 (195):
+# the installed CMake has no "Visual Studio 18 2026" generator, and Conan Center
+# ships prebuilt binaries for msvc 194 (so deps download instead of building).
+compiler=msvc
+compiler.version=194
+compiler.cppstd=17
+compiler.runtime=dynamic
+build_type=Release
+
+[options]
+*:shared=False

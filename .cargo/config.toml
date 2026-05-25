@@ -1,0 +1,49 @@
+[alias]
+bundle = "run -p perspective-bundle"
+
+[build]
+rustflags = ["--cfg=web_sys_unstable_apis", "-Csymbol-mangling-version=v0"]
+# rustflags = [
+#     "--cfg=web_sys_unstable_apis",
+#     "--cfg=pyo3_disable_reference_pool",
+#     "-Csymbol-mangling-version=legacy",
+#     "-Zunstable-options",
+# ]
+target-dir = "rust/target"
+
+[target.wasm32-unknown-unknown]
+rustflags = [
+    "--cfg=getrandom_backend=\"wasm_js\"",
+    "--cfg=web_sys_unstable_apis",
+    "-Ctarget-feature=+bulk-memory,+simd128,+relaxed-simd,+reference-types",
+]
+
+# crt-static removed for the Conan build: the C++ engine + Conan deps link the
+# DYNAMIC CRT (/MD) (conan profile compiler.runtime=dynamic + build.rs
+# static_crt(false)); Rust must match or the final link fails with LNK2038.
+[target.i686-pc-windows-msvc]
+rustflags = ["--cfg=web_sys_unstable_apis"]
+
+[target.x86_64-pc-windows-msvc]
+rustflags = ["--cfg=web_sys_unstable_apis"]
+
+[future-incompat-report]
+frequency = 'never'
+
+# TODO This is required to synth public releases on GH Actions, which doesn't
+# use the root `Cargo.toml`.
+[patch.crates-io]
+perspective-client = { path = "rust/perspective-client" }
+perspective-server = { path = "rust/perspective-server" }
+perspective-js = { path = "rust/perspective-js" }
+perspective-python = { path = "rust/perspective-python" }
+perspective-viewer = { path = "rust/perspective-viewer" }
+perspective = { path = "rust/perspective" }
+
+[unstable]
+bindeps = true
+
+[term]
+quiet = false
+verbose = false
+color = 'always'

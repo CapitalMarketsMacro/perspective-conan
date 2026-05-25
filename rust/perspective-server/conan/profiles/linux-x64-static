@@ -1,0 +1,8 @@
+include(default)
+
+[settings]
+compiler.cppstd=gnu17
+build_type=Release
+
+[options]
+*:shared=False
