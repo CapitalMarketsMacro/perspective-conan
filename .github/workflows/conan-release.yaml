@@ -19,9 +19,15 @@ on:
             - main
         tags:
             - "v*"
+        # Skip the (expensive) build on docs-only branch pushes. Real release
+        # tags carry code so they still build; use workflow_dispatch otherwise.
+        paths-ignore:
+            - "**.md"
     pull_request:
         branches:
             - main
+        paths-ignore:
+            - "**.md"
     workflow_dispatch:
 
 # Allow only one build per ref; cancel superseded in-progress runs.
