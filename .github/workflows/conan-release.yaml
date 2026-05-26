@@ -125,6 +125,25 @@ jobs:
                   CMAKE_GENERATOR: Visual Studio 17 2022
               run: cargo build -p rust-axum --features _hack --release
 
+            # Export the prebuilt Arrow binary from the Conan cache. Arrow's
+            # non-default options (with_csv / with_lz4, required by the engine)
+            # mean Conan Center has no matching prebuilt, so it builds from
+            # source — and that source download is often firewalled in corporate
+            # nets. Ship the built binary so users can skip both: either
+            #   conan cache restore arrow-conan-<target>.tgz      (per machine), or
+            #   conan upload "arrow/*:*" -r <internal-remote> --confirm  (org-wide).
+            # The package_id matches any host using the committed conan profile.
+            - name: Export Arrow Conan binary
+              shell: bash
+              run: conan cache save "arrow/*:*" --file "arrow-conan-${{ matrix.target }}.tgz"
+
+            - name: Upload Arrow Conan binary
+              uses: actions/upload-artifact@v4
+              with:
+                  name: arrow-conan-${{ matrix.target }}.tgz
+                  path: arrow-conan-${{ matrix.target }}.tgz
+                  if-no-files-found: error
+
             # The example serves src/index.html + the viewer bundles and dataset
             # from node_modules/ relative to its working dir. Vendor them so the
             # released archive is self-contained and runnable. Install into a

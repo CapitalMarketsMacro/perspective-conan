@@ -105,6 +105,36 @@ cargo build -p rust-axum --features _hack
 `conan/profiles/`. No `CMAKE_GENERATOR` override needed. Set `CONAN_CACERT_PATH`
 / `REQUESTS_CA_BUNDLE` only if your network intercepts TLS.
 
+## Prebuilt Arrow binary (corporate / air-gapped)
+
+Arrow is the one dependency Conan **builds from source**: the engine needs
+`arrow/csv` + `LZ4_FRAME`, so the conanfile sets `with_csv=True` / `with_lz4=True`,
+and Conan Center publishes binaries only for *default* options — so no prebuilt
+Arrow matches, for any version. On a network that blocks Arrow's source download
+(`archive.apache.org` / GitHub) you'll see an error in the recipe's `source()`
+method.
+
+Two ways to avoid building/downloading Arrow source:
+
+1. **Use the CI artifact.** Every build publishes `arrow-conan-windows-x64.tgz`
+   and `arrow-conan-linux-x64.tgz` (and these are attached to tagged releases).
+   Download the one for your platform, then on any host using the committed
+   Conan profile (Windows: VS 2022 / msvc 194):
+
+   ```powershell
+   conan cache restore arrow-conan-windows-x64.tgz   # per machine, or…
+   conan upload "arrow/*:*" -r <internal-remote> --confirm   # …once, org-wide
+   ```
+
+   After the `upload`, Arrow downloads from your internal remote like every other
+   dep. The package_id is pinned by the profile + pinned dep versions, so a
+   restored/uploaded binary is reused without rebuilding.
+
+2. **Vendor the source.** Put the Arrow source archive under
+   `rust/perspective-server/vendor/conan-sources/`; `build.rs` points Conan's
+   `core.sources:download_cache` at it, so the from-source build runs offline
+   (no download, but still compiles — slower than option 1).
+
 ## Run the example
 
 The `rust-axum` example reads its dataset and serves its frontend bundles from
