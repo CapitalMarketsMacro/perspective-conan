@@ -139,23 +139,28 @@ downloads from your Conan remote as usual.
 
 ## Run the example
 
-The `rust-axum` example reads its dataset and serves its frontend bundles from
-`node_modules/` relative to the working directory:
+The dataset is committed at `examples/rust-axum/data/superstore.arrow`, so the
+**server starts with no `npm install`** (it loads `data/superstore.arrow`, and
+falls back to the `node_modules/superstore-arrow/` layout if present). The
+browser UI still loads the `<perspective-viewer>` bundles from `node_modules/`,
+so `npm install` is only needed if you want the rendered grid in a browser.
 
 ```powershell
 cd examples\rust-axum
-# Vendor the viewer bundles + superstore.arrow (concrete versions; the upstream
-# package.json uses a pnpm `catalog:` ref that only resolves inside the monorepo):
+# Optional — only for the browser viewer UI (skip on a locked-down network; the
+# server + /ws data API work without it). The upstream package.json uses a pnpm
+# `catalog:` ref that plain npm can't resolve, so install concrete versions:
 npm install --strict-ssl=false `
   @perspective-dev/client@4.5.0 @perspective-dev/viewer@4.5.0 `
-  @perspective-dev/viewer-datagrid@4.5.0 @perspective-dev/viewer-charts@4.5.0 `
-  superstore-arrow@1.0.0
-# Run from the example dir so node_modules/ + src/index.html resolve:
+  @perspective-dev/viewer-datagrid@4.5.0 @perspective-dev/viewer-charts@4.5.0
+# Run from the example dir so data/ + src/index.html resolve:
 ..\..\rust\target\debug\rust-axum.exe
 ```
 
 Open <http://localhost:3000> — the `<perspective-viewer>` connects to `/ws`,
-opens the `my_data_source` table, and renders an interactive grid/charts UI.
+opens the `my_data_source` table, and renders an interactive grid/charts UI
+(the viewer bundles must be present for the UI; the server/data layer works
+regardless).
 
 ## What changed vs. upstream perspective v4.5.0
 

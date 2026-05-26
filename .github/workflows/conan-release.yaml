@@ -165,9 +165,10 @@ jobs:
               if: runner.os == 'Linux'
               shell: bash
               run: |
-                  mkdir -p stage/src
+                  mkdir -p stage/src stage/data
                   cp "rust/target/release/${{ matrix.bin }}" stage/
                   cp examples/rust-axum/src/index.html stage/src/
+                  cp examples/rust-axum/data/superstore.arrow stage/data/
                   cp -r _vendor/node_modules stage/node_modules
                   cat > stage/RUN.txt <<'EOF'
                   Perspective rust-axum example (Conan build)
@@ -184,9 +185,10 @@ jobs:
               if: runner.os == 'Windows'
               shell: pwsh
               run: |
-                  New-Item -ItemType Directory -Force -Path stage, stage\src | Out-Null
+                  New-Item -ItemType Directory -Force -Path stage, stage\src, stage\data | Out-Null
                   Copy-Item "C:\t\release\${{ matrix.bin }}" stage\
                   Copy-Item examples\rust-axum\src\index.html stage\src\
+                  Copy-Item examples\rust-axum\data\superstore.arrow stage\data\
                   Copy-Item _vendor\node_modules stage\node_modules -Recurse
                   @"
                   Perspective rust-axum example (Conan build)

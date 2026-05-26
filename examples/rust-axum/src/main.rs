@@ -32,7 +32,13 @@ use tracing_subscriber::prelude::*;
 use tracing_subscriber::registry;
 
 const ROOT_PATH: &str = ".";
-const ARROW_FILE_PATH: &str = "node_modules/superstore-arrow/superstore.arrow";
+// The example dataset is committed at `data/superstore.arrow` so the server runs
+// from a fresh clone with no `npm install` (handy on locked-down networks). The
+// npm / release-archive layout is kept as a fallback.
+const ARROW_FILE_CANDIDATES: &[&str] = &[
+    "data/superstore.arrow",
+    "node_modules/superstore-arrow/superstore.arrow",
+];
 
 #[cfg(feature = "_hack")]
 const SERVER_ADDRESS: &str = "0.0.0.0:3000";
@@ -44,7 +50,17 @@ type AppError = Box<dyn std::error::Error + Send + Sync>;
 /// [`perspective::Table`] named "my_data_source".
 async fn load_server_arrow(server: &Server) -> Result<(), AppError> {
     let client = server.new_local_client();
-    let mut file = File::open(std::path::Path::new(ROOT_PATH).join(ARROW_FILE_PATH))?;
+    let arrow_path = ARROW_FILE_CANDIDATES
+        .iter()
+        .map(|p| std::path::Path::new(ROOT_PATH).join(p))
+        .find(|p| p.exists())
+        .ok_or_else(|| {
+            format!(
+                "dataset not found; looked for {}",
+                ARROW_FILE_CANDIDATES.join(" and ")
+            )
+        })?;
+    let mut file = File::open(arrow_path)?;
     let mut feather = Vec::with_capacity(file.metadata()?.len() as usize);
     file.read_to_end(&mut feather)?;
     let data = UpdateData::Arrow(feather.into());
