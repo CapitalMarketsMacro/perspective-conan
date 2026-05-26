@@ -210,6 +210,46 @@ fn conan_profile() -> &'static str {
     }
 }
 
+/// Restore a committed, prebuilt Arrow binary into the local Conan cache so the
+/// build neither downloads Arrow's source (its non-default `with_csv`/`with_lz4`
+/// options have no Conan Center prebuilt, and the source download is often
+/// firewalled) nor recompiles it. Best-effort: if the archive is missing or the
+/// restore fails (e.g. a toolchain whose package_id doesn't match the vendored
+/// binary), the normal `conan install --build=missing` path still runs.
+fn restore_vendored_arrow(manifest_dir: &Path) {
+    let archive = if cfg!(target_os = "windows") {
+        "arrow-windows-x64.tgz"
+    } else if cfg!(target_os = "linux") {
+        "arrow-linux-x64.tgz"
+    } else {
+        return; // no vendored binary for this platform
+    };
+
+    let tgz = manifest_dir.join("vendor").join("arrow").join(archive);
+    if !tgz.is_file() {
+        return;
+    }
+
+    println!(
+        "cargo:warning=Restoring vendored Arrow binary into Conan cache: {}",
+        tgz.display()
+    );
+    match Command::new("conan")
+        .args(["cache", "restore"])
+        .arg(&tgz)
+        .status()
+    {
+        Ok(s) if s.success() => println!("cargo:warning=Vendored Arrow restored"),
+        Ok(s) => println!(
+            "cargo:warning=conan cache restore exited {:?}; falling back to normal install",
+            s.code()
+        ),
+        Err(e) => {
+            println!("cargo:warning=conan cache restore could not run ({e}); falling back")
+        }
+    }
+}
+
 /// Run `conan install` and return the path to the Conan output directory.
 /// Panics if Conan is not available — Conan is required for this build.
 fn conan_install(manifest_dir: &Path) -> PathBuf {
@@ -236,6 +276,9 @@ fn conan_install(manifest_dir: &Path) -> PathBuf {
         "conan profile detect failed with exit code {:?}",
         detect_status.code()
     );
+
+    // Seed the cache with the committed prebuilt Arrow before resolving deps.
+    restore_vendored_arrow(manifest_dir);
 
     let profile = conan_profile();
     let profiles_dir = manifest_dir.join("conan").join("profiles");

@@ -61,6 +61,8 @@ isn't blocked by CRL/OCSP checks.
     in newer re2 which aliases `StringPiece` to `std::string_view`).
   - `protobuf/6.33.5`, `abseil/20260107.1`, `boost/1.86.0`, `rapidjson`, `date`,
     `tsl-hopscotch-map`, `tsl-ordered-map`, `exprtk`.
+- **Arrow is committed prebuilt** (`vendor/arrow/*.tgz`) and `build.rs` restores
+  it into the Conan cache before installing — see the dedicated section below.
 - **CRT**: the Conan profiles use `compiler.runtime=dynamic` (/MD). Rust matches
   (no `+crt-static` — removed from `.cargo/config.toml`), so the final link is
   consistent. The Windows profile pins `compiler.version=194` (VS 2022).
@@ -105,35 +107,35 @@ cargo build -p rust-axum --features _hack
 `conan/profiles/`. No `CMAKE_GENERATOR` override needed. Set `CONAN_CACERT_PATH`
 / `REQUESTS_CA_BUNDLE` only if your network intercepts TLS.
 
-## Prebuilt Arrow binary (corporate / air-gapped)
+## Arrow is vendored as a prebuilt binary (corporate / air-gapped)
 
-Arrow is the one dependency Conan **builds from source**: the engine needs
-`arrow/csv` + `LZ4_FRAME`, so the conanfile sets `with_csv=True` / `with_lz4=True`,
-and Conan Center publishes binaries only for *default* options — so no prebuilt
-Arrow matches, for any version. On a network that blocks Arrow's source download
-(`archive.apache.org` / GitHub) you'll see an error in the recipe's `source()`
-method.
+Arrow is the one dependency Conan would otherwise **build from source**: the
+engine needs `arrow/csv` + `LZ4_FRAME`, so the conanfile sets `with_csv=True` /
+`with_lz4=True`, and Conan Center publishes binaries only for *default* options —
+so no prebuilt Arrow matches, for any version. On a network that blocks Arrow's
+source download (`archive.apache.org` / GitHub) that surfaces as an error in the
+recipe's `source()` method.
 
-Two ways to avoid building/downloading Arrow source:
+To make a clean clone build with **no download and no source compile**, the
+prebuilt Arrow binary is **committed in the repo** at
+`rust/perspective-server/vendor/arrow/arrow-{windows,linux}-x64.tgz`, and
+`build.rs` runs `conan cache restore` on it automatically before `conan install`.
+Conan then finds Arrow already in the cache and reuses it; everything else
+downloads from your Conan remote as usual.
 
-1. **Use the CI artifact.** Every build publishes `arrow-conan-windows-x64.tgz`
-   and `arrow-conan-linux-x64.tgz` (and these are attached to tagged releases).
-   Download the one for your platform, then on any host using the committed
-   Conan profile (Windows: VS 2022 / msvc 194):
-
-   ```powershell
-   conan cache restore arrow-conan-windows-x64.tgz   # per machine, or…
-   conan upload "arrow/*:*" -r <internal-remote> --confirm   # …once, org-wide
-   ```
-
-   After the `upload`, Arrow downloads from your internal remote like every other
-   dep. The package_id is pinned by the profile + pinned dep versions, so a
-   restored/uploaded binary is reused without rebuilding.
-
-2. **Vendor the source.** Put the Arrow source archive under
-   `rust/perspective-server/vendor/conan-sources/`; `build.rs` points Conan's
-   `core.sources:download_cache` at it, so the from-source build runs offline
-   (no download, but still compiles — slower than option 1).
+- This is keyed by **package_id**, which is fixed by the committed Conan profile
+  (Windows: VS 2022 / **msvc 194**, dynamic CRT, Release) + the pinned dependency
+  versions. On a matching toolchain it's reused as-is. If your compiler differs,
+  the package_id won't match and Conan falls back to a normal source build — in
+  that case regenerate the binary (`conan cache save "arrow/*:*" --file …`) on a
+  matching host, or restore the CI artifact below.
+- The same binaries are published by CI as `arrow-conan-{windows,linux}-x64.tgz`
+  artifacts (and attached to tagged releases) — handy for refreshing the vendored
+  copies or for `conan cache restore` on another machine.
+- Alternative (kept for reference): vendor the Arrow **source** under
+  `rust/perspective-server/vendor/conan-sources/` instead; `build.rs` points
+  Conan's `core.sources:download_cache` there for an offline *source* build
+  (no download, but still compiles — slower).
 
 ## Run the example
 
