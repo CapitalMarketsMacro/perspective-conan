@@ -49,7 +49,8 @@ py_modules
 python/cmake
 python/cpp
 rust/perspective-client/docs/expression_gen.md
-rust/perspective-client/src/rust/proto.rs
+# proto.rs is committed in this fork (generate-proto is off by default), so it
+# is intentionally NOT ignored here.
 rust/perspective-js/src/ts/ts-rs
 rust/perspective-server/build
 rust/perspective-python/LICENSE_THIRDPARTY_cargo.yml

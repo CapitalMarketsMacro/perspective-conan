@@ -132,9 +132,15 @@ opens the `my_data_source` table, and renders an interactive grid/charts UI.
   `cpp/perspective/CMakeLists.txt` and `cpp/protos/CMakeLists.txt`; Conan-aware
   `cmake/modules/`. Manifest: `protobuf-src` optional behind `bundled-protoc`,
   added `which`, dropped the default `python` binding.
-- `rust/perspective-client/`: enabled `generate-proto` + `protobuf-src` +
-  `omit_metadata` by default (a source checkout ships no generated `proto.rs`
-  or metadata docs).
+- `rust/perspective-client/`: the generated `src/rust/proto.rs` is **committed**
+  (de-ignored in `.gitignore`), and `generate-proto` / `protobuf-src` are now
+  **off** by default — so the Rust client no longer builds protobuf from source
+  or needs a `protoc` at all; it just compiles the committed `proto.rs`. Only
+  `omit_metadata` stays on by default. (Conan's `protoc` still compiles the C++
+  side, `cpp/protos`.) To regenerate `proto.rs` after editing `perspective.proto`,
+  build with `--features perspective-client/generate-proto,perspective-client/protobuf-src`
+  — first re-add the carlocorradini `protobuf-src` patch noted in the root
+  `Cargo.toml`.
 - `.cargo/config.toml`: dropped `+crt-static` (the Conan build links the
   dynamic CRT).
 - **Slimmed to the pure-Rust server**: removed the `perspective-viewer` /

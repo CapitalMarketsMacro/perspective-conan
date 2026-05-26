@@ -31,12 +31,19 @@ include = [
 ]
 
 [features]
-# Generate proto.rs from perspective.proto via a from-source protoc (protobuf-src,
-# the Windows-patched carlocorradini fork pinned in the workspace). The monorepo
-# checkout ships no generated proto.rs, so this is required to build from source.
+# This fork commits the generated `src/rust/proto.rs`, so the default build
+# does NOT regenerate it — no `protoc` / from-source `protobuf-src` build is
+# needed for the Rust client. (Conan's protoc still compiles the C++ side.)
+#
+# To regenerate proto.rs after editing `perspective.proto`, build with
+# `--features perspective-client/generate-proto,perspective-client/protobuf-src`
+# (re-add the carlocorradini `protobuf-src` patch to the workspace Cargo.toml
+# first; it's the Windows-buildable fork). Or set PROTOC and use generate-proto
+# alone.
+#
 # omit_metadata: skip `include_str!` of generated docs (e.g. docs/expression_gen.md)
 # that the monorepo's JS/metadata tooling produces but a fresh checkout lacks.
-default = ["generate-proto", "protobuf-src", "omit_metadata"]
+default = ["omit_metadata"]
 
 # Removes the `Send` restriction from core `Future` traits, allowing easier
 # integration with wasm while respecting compat with rust-analyzer and metadata.
