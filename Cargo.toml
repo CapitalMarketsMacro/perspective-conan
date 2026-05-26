@@ -10,26 +10,21 @@
 #  ┃ of the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0). ┃
 #  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
+# Slimmed to the pure-Rust server: only the crates the `rust-axum` example
+# needs. The JS/WASM (perspective-viewer, perspective-js), Python
+# (perspective-python), and JS build-tooling crates (lint, metadata, bundle)
+# have been removed.
 [workspace]
 resolver = "2"
 default-members = [
     "rust/perspective",
     "rust/perspective-client",
-    "rust/perspective-js",
-    "rust/perspective-python",
     "rust/perspective-server",
-    "rust/perspective-viewer",
 ]
 members = [
-    "rust/lint",
-    "rust/metadata",
-    "rust/bundle",
     "rust/perspective",
     "rust/perspective-client",
-    "rust/perspective-js",
-    "rust/perspective-python",
     "rust/perspective-server",
-    "rust/perspective-viewer",
     "examples/rust-axum",
 ]
 
@@ -46,11 +41,7 @@ strip = true
 
 # These are only respected when `cargo` is invoked from the project root
 [patch.crates-io]
-# simd-adler32 = { git = "https://github.com/mcountryman/simd-adler32.git", rev = "b279034d9eb554c3e5e0af523db044f08d8297ba" }
 protobuf-src = { git = "https://github.com/carlocorradini/rust-protobuf-native.git", rev = "1aba500e469f8bdc384a0fe9e69c189fda72e059" }
 perspective-client = { path = "rust/perspective-client" }
 perspective-server = { path = "rust/perspective-server" }
-perspective-js = { path = "rust/perspective-js" }
 perspective = { path = "rust/perspective" }
-perspective-viewer = { path = "rust/perspective-viewer" }
-perspective-python = { path = "rust/perspective-python" }

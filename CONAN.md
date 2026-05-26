@@ -137,6 +137,13 @@ opens the `my_data_source` table, and renders an interactive grid/charts UI.
   or metadata docs).
 - `.cargo/config.toml`: dropped `+crt-static` (the Conan build links the
   dynamic CRT).
+- **Slimmed to the pure-Rust server**: removed the `perspective-viewer` /
+  `perspective-js` (browser/WASM), `perspective-python` (bindings), and
+  `metadata` / `lint` / `bundle` (JS tooling) crates, plus the `packages/`,
+  `tools/`, `docs/` trees, the pnpm/eslint/prettier config, and the upstream
+  pnpm/Python CI. The workspace is now `perspective`, `perspective-client`,
+  `perspective-server`, and the `examples/rust-axum` example. The demo's browser
+  UI still uses prebuilt `@perspective-dev/viewer` npm bundles at runtime.
 
 ## License
 

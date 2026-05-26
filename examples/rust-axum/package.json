@@ -9,7 +9,7 @@
     "keywords": [],
     "license": "Apache-2.0",
     "dependencies": {
-        "superstore-arrow": "catalog:"
+        "superstore-arrow": "^1.0.0"
     },
     "devDependencies": {}
 }

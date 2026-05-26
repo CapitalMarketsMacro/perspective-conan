@@ -9,10 +9,27 @@ during the CMake build.
 
 This makes the Rust/C++ build work on **corporate or air-gapped networks** where
 those hosts are blocked but a Conan remote (Conan Center, or an internal
-Artifactory/Nexus mirror) is reachable. Everything else is upstream Perspective
-v4.5.0, unchanged.
+Artifactory/Nexus mirror) is reachable.
+
+This fork is also **slimmed to the pure-Rust server**: it keeps only the crates
+the `rust-axum` example needs — `perspective`, `perspective-client`,
+`perspective-server` — plus the example itself. The browser/WASM packages
+(`perspective-viewer`, `perspective-js`), the Python bindings
+(`perspective-python`), and the JS/pnpm monorepo build tooling (`packages/`,
+`tools/`, `docs/`, the metadata/lint/bundle crates) have all been removed. The
+demo's web UI still loads the Perspective viewer at runtime as **prebuilt npm
+bundles** from the public registry (nothing JS is compiled here).
 
 > 🔒 **Private** repository under the `CapitalMarketsMacro` org.
+
+## Repository layout
+
+```
+rust/perspective         facade crate (re-exports client + server)
+rust/perspective-client   client API + protobuf
+rust/perspective-server   C++ engine (Conan-resolved deps) + build.rs
+examples/rust-axum        runnable Axum server (the build/release target)
+```
 
 ## Quick start
 
