@@ -75,11 +75,6 @@ jobs:
               shell: bash
               run: pip install "conan>=2.0"
 
-            - name: Set up Node (to vendor the viewer assets)
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
-
             - name: Install CMake + Ninja
               uses: lukka/get-cmake@latest
 
@@ -144,23 +139,9 @@ jobs:
                   path: arrow-conan-${{ matrix.target }}.tgz
                   if-no-files-found: error
 
-            # The example serves src/index.html + the viewer bundles and dataset
-            # from node_modules/ relative to its working dir. Vendor them so the
-            # released archive is self-contained and runnable. Install into a
-            # clean throwaway dir: the example's own package.json uses a pnpm
-            # `catalog:` ref that plain npm can't resolve.
-            - name: Vendor frontend assets
-              shell: bash
-              run: |
-                  mkdir -p _vendor && cd _vendor
-                  npm init -y >/dev/null
-                  npm install --no-audit --no-fund \
-                      @perspective-dev/client@4.5.0 \
-                      @perspective-dev/viewer@4.5.0 \
-                      @perspective-dev/viewer-datagrid@4.5.0 \
-                      @perspective-dev/viewer-charts@4.5.0 \
-                      superstore-arrow@1.0.0
-
+            # The dataset (data/superstore.arrow) and the browser viewer bundles
+            # (web/@perspective-dev/...) are committed in-repo, so the archive is
+            # self-contained and runnable with no npm — just copy them in.
             - name: Stage package (Linux)
               if: runner.os == 'Linux'
               shell: bash
@@ -169,11 +150,11 @@ jobs:
                   cp "rust/target/release/${{ matrix.bin }}" stage/
                   cp examples/rust-axum/src/index.html stage/src/
                   cp examples/rust-axum/data/superstore.arrow stage/data/
-                  cp -r _vendor/node_modules stage/node_modules
+                  cp -r examples/rust-axum/web stage/web
                   cat > stage/RUN.txt <<'EOF'
                   Perspective rust-axum example (Conan build)
 
-                  Run from this directory so ./src/index.html and ./node_modules resolve:
+                  Run from this directory so ./src/index.html, ./data and ./web resolve:
 
                       ./rust-axum
 
@@ -189,11 +170,11 @@ jobs:
                   Copy-Item "C:\t\release\${{ matrix.bin }}" stage\
                   Copy-Item examples\rust-axum\src\index.html stage\src\
                   Copy-Item examples\rust-axum\data\superstore.arrow stage\data\
-                  Copy-Item _vendor\node_modules stage\node_modules -Recurse
+                  Copy-Item examples\rust-axum\web stage\web -Recurse
                   @"
                   Perspective rust-axum example (Conan build)
 
-                  Run from this directory so .\src\index.html and .\node_modules resolve:
+                  Run from this directory so .\src\index.html, .\data and .\web resolve:
 
                       .\rust-axum.exe
 

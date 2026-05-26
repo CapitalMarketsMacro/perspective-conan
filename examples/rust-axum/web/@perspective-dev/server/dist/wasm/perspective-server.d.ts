@@ -1,0 +1,21 @@
+// TypeScript bindings for emscripten-generated code.  Automatically generated at compile time.
+declare namespace RuntimeExports {
+    let HEAPU8: any;
+}
+interface WasmModule {
+  _psp_new_server(_0: number): number;
+  _psp_handle_request(_0: number, _1: number, _2: number, _3: number): number;
+  _psp_poll(_0: number): number;
+  _psp_new_session(_0: number): number;
+  _psp_close_session(_0: number, _1: number): void;
+  _psp_alloc(_0: number): number;
+  _psp_free(_0: number): void;
+  _psp_delete_server(_0: number): void;
+  _psp_is_memory64(): number;
+  _psp_num_cpus(): number;
+  _psp_set_num_cpus(_0: number): void;
+  __initialize(): void;
+}
+
+export type MainModule = WasmModule & typeof RuntimeExports;
+export default function MainModuleFactory (options?: unknown): Promise<MainModule>;

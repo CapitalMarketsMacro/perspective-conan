@@ -71,3 +71,8 @@ docs/static/viewer
 docs/static/react
 rust/perspective-server/build
 target/
+
+# Committed offline viewer bundles for the rust-axum demo. These live under
+# `dist/` dirs, so re-include them past the global `dist/` rule above.
+!examples/rust-axum/web/**/dist/
+!examples/rust-axum/web/**/dist/**

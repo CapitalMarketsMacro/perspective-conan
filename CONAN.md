@@ -139,28 +139,25 @@ downloads from your Conan remote as usual.
 
 ## Run the example
 
-The dataset is committed at `examples/rust-axum/data/superstore.arrow`, so the
-**server starts with no `npm install`** (it loads `data/superstore.arrow`, and
-falls back to the `node_modules/superstore-arrow/` layout if present). The
-browser UI still loads the `<perspective-viewer>` bundles from `node_modules/`,
-so `npm install` is only needed if you want the rendered grid in a browser.
+**No `npm` is required.** Both the dataset (`data/superstore.arrow`) and the
+browser viewer bundles (`web/@perspective-dev/...`, the `cdn`+`wasm`+`css`
+builds, ~5 MB) are committed in-repo. The server loads `data/superstore.arrow`
+and `src/index.html` references the bundles under `/web/`, all served relative
+to the working directory:
 
 ```powershell
 cd examples\rust-axum
-# Optional — only for the browser viewer UI (skip on a locked-down network; the
-# server + /ws data API work without it). The upstream package.json uses a pnpm
-# `catalog:` ref that plain npm can't resolve, so install concrete versions:
-npm install --strict-ssl=false `
-  @perspective-dev/client@4.5.0 @perspective-dev/viewer@4.5.0 `
-  @perspective-dev/viewer-datagrid@4.5.0 @perspective-dev/viewer-charts@4.5.0
-# Run from the example dir so data/ + src/index.html resolve:
+# Run from the example dir so data/, web/ and src/index.html resolve:
 ..\..\rust\target\debug\rust-axum.exe
 ```
 
 Open <http://localhost:3000> — the `<perspective-viewer>` connects to `/ws`,
-opens the `my_data_source` table, and renders an interactive grid/charts UI
-(the viewer bundles must be present for the UI; the server/data layer works
-regardless).
+opens the `my_data_source` table, and renders an interactive grid/charts UI,
+fully offline.
+
+> To refresh the committed bundles to a new Perspective version, `npm install`
+> `@perspective-dev/{client,viewer,viewer-datagrid,viewer-charts}@<ver>` and copy
+> each package's `dist/{cdn,wasm,css}` into `examples/rust-axum/web/@perspective-dev/`.
 
 ## What changed vs. upstream perspective v4.5.0
 
